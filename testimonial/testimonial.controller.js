@@ -5,10 +5,7 @@ const getTestimonials = async (req, res) => {
     const testimonials = await Testimonials.find({
       active: 1,
     }).exec();
-    res.status(200).json({
-      message: "Fetched",
-      testimonials,
-    });
+    res.status(200).json(testimonials);
   } catch (error) {
     throw new Error("Some Error Occured");
   }
@@ -41,7 +38,7 @@ const addTestimonial = async (req, res) => {
   }
 
   const newTestimonial = new Testimonials({
-    photo: req.file.filename,
+    photo: `images/${req.file.filename}`,
     name,
     post,
     description,
@@ -53,11 +50,10 @@ const addTestimonial = async (req, res) => {
   try {
     const savedTestimonial = await newTestimonial.save();
 
-    console.log(savedTestimonial);
-
     res.status(201).json({
       success: true,
-      message: "added testimonial",
+      message: "added successfully",
+      data: savedTestimonial,
     });
   } catch (error) {
     console.log(error);
@@ -82,7 +78,7 @@ const updateTestimonial = async (req, res) => {
       foundTestimonial.name = name;
       foundTestimonial.post = post;
       foundTestimonial.description = description;
-      foundTestimonial.photo = req.file.filename;
+      foundTestimonial.photo = `images/${req.file.filename}`;
       foundTestimonial.lastUpdatedOn = Date.now();
 
       const savedTestimonial = await foundTestimonial.save();
