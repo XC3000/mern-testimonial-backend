@@ -1,3 +1,6 @@
+const fs = require("fs");
+var path = require("path");
+var rimraf = require("rimraf");
 const Testimonials = require("./testimonial.model");
 
 const getTestimonials = async (req, res) => {
@@ -31,12 +34,10 @@ const getTestimonialsById = async (req, res) => {
 
 const addTestimonial = async (req, res) => {
   const { name, post, description } = req.body;
-
   if (!name || !post || !description) {
     res.status(400);
     throw new Error("Please add all the fields");
   }
-
   const newTestimonial = new Testimonials({
     photo: `images/${req.file.filename}`,
     name,
@@ -46,10 +47,8 @@ const addTestimonial = async (req, res) => {
     createdOn: Date.now(),
     lastUpdatedOn: Date.now(),
   });
-
   try {
     const savedTestimonial = await newTestimonial.save();
-
     res.status(201).json({
       success: true,
       message: "added successfully",
@@ -64,8 +63,6 @@ const addTestimonial = async (req, res) => {
 const updateTestimonial = async (req, res) => {
   const { name, post, description } = req.body;
 
-  console.log(req.body);
-
   if (!name || !post || !description || !req.file) {
     res.status(400);
     throw new Error("Please add all the fields");
@@ -75,6 +72,10 @@ const updateTestimonial = async (req, res) => {
     const foundTestimonial = await Testimonials.findById(req.params.id);
 
     if (foundTestimonial) {
+      fs.unlink(path.normalize(`./${foundTestimonial.photo}`), (err) => {
+        if (err) console.log(err);
+      });
+
       foundTestimonial.name = name;
       foundTestimonial.post = post;
       foundTestimonial.description = description;
